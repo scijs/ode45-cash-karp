@@ -7,7 +7,7 @@ var rk45 = require('../lib')
 var ctors = {
   //'float32': Float32Array,
   'float64': Float64Array,
-  //'array': function(){ return arguments[0] }
+  'array': function(){ return arguments[0] }
 }
 
 

@@ -1,4 +1,4 @@
-# ode-rk45-cash-karp [![Build Status](https://travis-ci.org/scijs/ode-rk45-cash-karp.svg)](https://travis-ci.org/scijs/ode-rk45-cash-karp) [![npm version](https://badge.fury.io/js/ode-rk45-cash-karp.svg)](http://badge.fury.io/js/ode-rk45-cash-karp) [![Dependency Status](https://david-dm.org/scijs/ode-rk45-cash-karp.svg)](https://david-dm.org/scijs/ode-rk45-cash-karp)
+# [WIP] ode-rk45-cash-karp [![Build Status](https://travis-ci.org/scijs/ode-rk45-cash-karp.svg)](https://travis-ci.org/scijs/ode-rk45-cash-karp) [![npm version](https://badge.fury.io/js/ode-rk45-cash-karp.svg)](http://badge.fury.io/js/ode-rk45-cash-karp) [![Dependency Status](https://david-dm.org/scijs/ode-rk45-cash-karp.svg)](https://david-dm.org/scijs/ode-rk45-cash-karp)
 
 > Integrate a system of ODEs using the Fifth Order Adaptive Cash-Karp Runge-Kutta (RKCK) method
 
