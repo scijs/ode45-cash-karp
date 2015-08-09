@@ -20,7 +20,7 @@ $ npm install ode-rk45-cash-karp
 ## Example
 
 ```javascript
-var rk45-cash-karp = require('ode-rk45-cash-karp')
+var rk45 = require('ode-rk45-cash-karp')
 
 var deriv = function(dydt, y, t) {
   dydt[0] = -y[1]
@@ -32,7 +32,7 @@ var n = 1000
 var t0 = 0
 var dt = 2.0 * Math.PI / n
 
-var integrator = rk45-cash-karp( y0, deriv, t0, dt )
+var integrator = rk45( y0, deriv, t0, dt )
 
 // Integrate 1000 steps:
 integrator.steps(n)
@@ -42,7 +42,7 @@ integrator.steps(n)
 
 ## API
 
-### `require('ode-rk45-adaptive')( y0, deriv, t0, dt )`
+### `require('ode-rk45-cash-karp')( y0, deriv, t0, dt )`
 **Arguments:**
 - `y0`: an array or typed array containing initial conditions. This vector is updated in-place with each integrator step.
 - `deriv`: a function that calculates the derivative. Format is `function( dydt, y, t )`. Inputs are current state `y` and current time `t`, output is the calculated derivative `dydt`.
