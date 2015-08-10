@@ -9,7 +9,7 @@ This module integrates a system of ordinary differential equations of the form
 
 $$[plain=true] \begin{eqnarray*} y'(t) &=& f(t, y(t)), \\ y(t_0) &=& y_0 \end{eqnarray*} $$
 
-where $y$ is a vector of length $n$. Given time step $\Delta t$, the [Cash-Karp](https://en.wikipedia.org/wiki/Cash%E2%80%93Karp_method) method uses a fifth order Runge-Kutta scheme with a fourth order embedded estimator in order to compute an error estimate. In other words, the same coefficients used in calculating the fifth order update can be used to calculate a fourth order estimate. The difference yields an error estimate, and the error estimate controls the timestep $\Delta t$.
+where $y$ is a vector of length $n$. Given time step $\Delta t$, the [Cash-Karp](https://en.wikipedia.org/wiki/Cash%E2%80%93Karp_method) method uses a fifth order Runge-Kutta scheme with a fourth order embedded estimator in order to control the error. In other words, the same intermediate values used in calculating the fifth order update can be used to calculate a fourth order estimate. The difference yields an error estimate, and the error estimate controls the timestep $\Delta t$.
 
 ## Install
 
