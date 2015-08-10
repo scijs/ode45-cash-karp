@@ -1,6 +1,6 @@
 {
-  "name": "ode-rk45-cash-karp",
-  "version": "0.2.2",
+  "name": "ode45-cash-karp",
+  "version": "1.0.0",
   "description": "Integrate a system of Ordinary Differential Equations using the Fifth Order Adaptive Cash-Karp method",
   "main": "lib/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/scijs/ode-rk45-cash-karp.git"
+    "url": "git://github.com/scijs/ode45-cash-karp.git"
   },
   "keywords": [
     "scijs",

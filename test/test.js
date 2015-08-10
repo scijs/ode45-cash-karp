@@ -1,6 +1,6 @@
 'use strict'
 
-var rk45 = require('../lib')
+var ode45 = require('../lib')
   , assert = require('chai').assert
   , richardson = require('richardson-extrapolation')
 
@@ -14,7 +14,7 @@ var ctors = {
 Object.keys(ctors).forEach(function(dtype) {
   var ctor = ctors[dtype]
 
-  describe('rk45 integration (' + dtype + ')', function() {
+  describe('ode45 integration (' + dtype + ')', function() {
 
     describe('setup', function() {
       var integrator, f, y0, t0, n
@@ -25,7 +25,7 @@ Object.keys(ctors).forEach(function(dtype) {
         y0 = new ctor([1])
         n = 10
 
-        integrator = rk45( new ctor([1]), function(){}, 1, 1)
+        integrator = ode45( new ctor([1]), function(){}, 1, 1)
       })
 
       it('creates work arrays of the same type as the input',function() {
@@ -58,9 +58,9 @@ Object.keys(ctors).forEach(function(dtype) {
         }
         // Integrate around a circle and confirm that it doesn't matter
         // whether we integrate one way or the other:
-        var i1 = rk45( new ctor([1,0]), f, 0, 1e4)
+        var i1 = ode45( new ctor([1,0]), f, 0, 1e4)
         i1.step()
-        var i2 = rk45( new ctor([1,0]), f, 0, -1e4)
+        var i2 = ode45( new ctor([1,0]), f, 0, -1e4)
         i2.step()
 
         assert.closeTo( i1.y[0], i2.y[0], 1e-6, 'x-coordinates are equal' )
@@ -75,9 +75,9 @@ Object.keys(ctors).forEach(function(dtype) {
         }
         // Integration around a circle is scale-independent in dt, so
         // ensure that the adaptation is the same no matter the radius:
-        var i1 = rk45( new ctor([1e5,0]), f, 0, 1e4)
+        var i1 = ode45( new ctor([1e5,0]), f, 0, 1e4)
         i1.step()
-        var i2 = rk45( new ctor([1e-5,0]), f, 0, 1e4)
+        var i2 = ode45( new ctor([1e-5,0]), f, 0, 1e4)
         i2.step()
         assert.closeTo( i1.dt, i2.dt, 1e-2 )
       })
@@ -85,7 +85,7 @@ Object.keys(ctors).forEach(function(dtype) {
       it('throws an error if NaN encountered', function() {
         var f = function(dydt, y) { dydt[0] = Math.pow(y[0],4) }
         assert.throws(function() {
-          var i = rk45( new ctor([100,0]), f, 0, 1)
+          var i = ode45( new ctor([100,0]), f, 0, 1)
           i.steps(10)
         },Error,/NaN encountered/)
       })
@@ -94,7 +94,7 @@ Object.keys(ctors).forEach(function(dtype) {
         // Integrate dy/dt = constant
         var c = 5.2
         var f = function(dydt, y) { dydt[0] = c }
-        var i = rk45( new ctor([0]), f, 0, 1)
+        var i = ode45( new ctor([0]), f, 0, 1)
         i.step()
         assert.closeTo( i.y[0], i.t * c, 1e-3, 'answer is correct' )
       })
@@ -105,7 +105,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var t1 = 3
         var dt = 1
         var f = function(dydt, y) { dydt[0] = c }
-        var i = rk45( new ctor([0]), f, t0, dt)
+        var i = ode45( new ctor([0]), f, t0, dt)
         i.step( t1 )
         assert.closeTo( i.y[0], (2-t0) * c, 1e-3, 'answer is correct' )
         assert.closeTo( i.t, 2, 1e-3, 'dt has been clipped')
@@ -120,7 +120,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var t1 = 1
         var dt = -1
         var f = function(dydt, y) { dydt[0] = c }
-        var i = rk45( new ctor([0]), f, t0, dt)
+        var i = ode45( new ctor([0]), f, t0, dt)
 
         assert.isTrue( i.step( t1 ) )
         assert.closeTo( i.y[0], (2-t0) * c, 1e-3, 'answer is correct' )
@@ -133,7 +133,7 @@ Object.keys(ctors).forEach(function(dtype) {
       it('integrates the 0 without incident', function() {
         // Just to make sure there aren't any divide-by-zero issues
         var f = function(dydt, y) { dydt[0] = 0 }
-        var i = rk45( new ctor([0]), f, 0, 1)
+        var i = ode45( new ctor([0]), f, 0, 1)
         i.step()
         assert.closeTo( i.y[0], 0, 1e-3, 'answer is correct' )
         assert.closeTo( i.dt, 10, 1e-3, 'dt has been increased for the next step' )
@@ -144,7 +144,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var dt0 = 15
         var factor = 11
         var f = function(dydt, y) { dydt[0] = 1 }
-        var i = rk45( new ctor([0]), f, 0, dt0, {maxIncreaseFactor: factor})
+        var i = ode45( new ctor([0]), f, 0, dt0, {maxIncreaseFactor: factor})
         i.step()
         assert.closeTo( i.dt, dt0 * factor, 1e-3, 'increased dt by maxIncreaseFactor' )
       })
@@ -155,7 +155,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var dtMinMag = 1e-4
         var i
         var f = function(dydt, y) { dydt[0] = Math.cos(1e5*y[0]) }
-        i = rk45( new ctor([0]), f, 0, 1, {dtMinMag: dtMinMag})
+        i = ode45( new ctor([0]), f, 0, 1, {dtMinMag: dtMinMag})
         i.step()
         assert( Number.isFinite(i.y[0]), 'y is finite' )
         assert( i.y[0] !== 0, 'y has been timestepped' )
@@ -168,7 +168,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var dtMinMag = 1e-4
         var i
         var f = function(dydt, y) { dydt[0] = Math.cos(1e5*y[0]) }
-        i = rk45( new ctor([0]), f, 0, -1, {dtMinMag: dtMinMag})
+        i = ode45( new ctor([0]), f, 0, -1, {dtMinMag: dtMinMag})
         i.step()
         assert( Number.isFinite(i.y[0]), 'y is finite' )
         assert( i.y[0] !== 0, 'y has been timestepped' )
@@ -181,7 +181,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var dtMaxMag = 2
         var i, dt0 = 1e4
         var f = function(dydt, y) { dydt[0] = 1 }
-        i = rk45( new ctor([0]), f, 0, dt0, {dtMaxMag: dtMaxMag})
+        i = ode45( new ctor([0]), f, 0, dt0, {dtMaxMag: dtMaxMag})
         i.step()
         assert( Number.isFinite(i.y[0]), 'y is finite' )
         assert( i.y[0] !== 0, 'y has been timestepped' )
@@ -194,7 +194,7 @@ Object.keys(ctors).forEach(function(dtype) {
         var dtMaxMag = 2
         var i, dt0 = -1e4
         var f = function(dydt, y) { dydt[0] = 1 }
-        i = rk45( new ctor([0]), f, 0, dt0, {dtMaxMag: dtMaxMag})
+        i = ode45( new ctor([0]), f, 0, dt0, {dtMaxMag: dtMaxMag})
         i.step()
         assert( Number.isFinite(i.y[0]), 'y is finite' )
         assert( i.y[0] !== 0, 'y has been timestepped' )
@@ -216,7 +216,7 @@ Object.keys(ctors).forEach(function(dtype) {
             dydt[0] = -y[1]* 2 * Math.PI * s
             dydt[1] =  y[0]* 2 * Math.PI * s
           }
-          var i = rk45( new ctor([1,0,0]), f, 0, h )
+          var i = ode45( new ctor([1,0,0]), f, 0, h )
 
           var n = Math.floor(1/h+0.5)
           for(var j=0; j<n; j++) {

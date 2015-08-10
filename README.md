@@ -1,6 +1,6 @@
-# [WIP] ode-rk45-cash-karp [![Build Status](https://travis-ci.org/scijs/ode-rk45-cash-karp.svg)](https://travis-ci.org/scijs/ode-rk45-cash-karp) [![npm version](https://badge.fury.io/js/ode-rk45-cash-karp.svg)](http://badge.fury.io/js/ode-rk45-cash-karp) [![Dependency Status](https://david-dm.org/scijs/ode-rk45-cash-karp.svg)](https://david-dm.org/scijs/ode-rk45-cash-karp)
+# ode45-cash-karp [![Build Status](https://travis-ci.org/scijs/ode45-cash-karp.svg)](https://travis-ci.org/scijs/ode45-cash-karp) [![npm version](https://badge.fury.io/js/ode45-cash-karp.svg)](http://badge.fury.io/js/ode45-cash-karp) [![Dependency Status](https://david-dm.org/scijs/ode45-cash-karp.svg)](https://david-dm.org/scijs/ode45-cash-karp)
 
-> Integrate a system of ODEs using the Fifth Order Adaptive Cash-Karp (RKCK) method
+> Integrate a system of Ordinary Differential Equations using the Fifth Order Adaptive Cash-Karp method
 
 
 ## Introduction
@@ -9,12 +9,12 @@ This module integrates a system of ordinary differential equations of the form
 
 <p align="center"><img alt="&bsol;begin&lcub;eqnarray&midast;&rcub; y&apos;&lpar;t&rpar; &amp;&equals;&amp; f&lpar;t&comma; y&lpar;t&rpar;&rpar;&comma; &bsol;&bsol; y&lpar;t&lowbar;0&rpar; &amp;&equals;&amp; y&lowbar;0 &bsol;end&lcub;eqnarray&midast;&rcub;" valign="middle" src="docs/images/begineqnarray-yt-ft-yt-yt_0-y_0-endeqnarray-0298eae3db.png" width="187" height="61"></p>
 
-where <img alt="y" valign="middle" src="docs/images/y-720f311276.png" width="14.5" height="20"> is a vector of length <img alt="n" valign="middle" src="docs/images/n-9baedbc330.png" width="16" height="16">. Given time step <img alt="&bsol;Delta t" valign="middle" src="docs/images/delta-t-a20a5fe4f2.png" width="28" height="16">, the Cash-Karp method uses a fifth order Runge-Kutta scheme with a fourth order embedded estimator in order to compute an error estimate. In other words, the same coefficients used in calculating the fifth order update can be used to calculate a fourth order estimate. The difference yields an error estimate, and the error estimate controls the timestep <img alt="&bsol;Delta t" valign="middle" src="docs/images/delta-t-a20a5fe4f2.png" width="28" height="16">.
+where <img alt="y" valign="middle" src="docs/images/y-720f311276.png" width="14.5" height="20"> is a vector of length <img alt="n" valign="middle" src="docs/images/n-9baedbc330.png" width="16" height="16">. Given time step <img alt="&bsol;Delta t" valign="middle" src="docs/images/delta-t-a20a5fe4f2.png" width="28" height="16">, the [Cash-Karp](https://en.wikipedia.org/wiki/Cash%E2%80%93Karp_method) method uses a fifth order Runge-Kutta scheme with a fourth order embedded estimator in order to compute an error estimate. In other words, the same coefficients used in calculating the fifth order update can be used to calculate a fourth order estimate. The difference yields an error estimate, and the error estimate controls the timestep <img alt="&bsol;Delta t" valign="middle" src="docs/images/delta-t-a20a5fe4f2.png" width="28" height="16">.
 
 ## Install
 
 ```bash
-$ npm install ode-rk45-cash-karp
+$ npm install ode45-cash-karp
 ```
 
 ## Example
@@ -22,7 +22,7 @@ $ npm install ode-rk45-cash-karp
 ### [Van der Pol oscillator](https://en.wikipedia.org/wiki/Van_der_Pol_oscillator)
 
 ```javascript
-var ode45 = require('ode-rk45-cash-karp')
+var ode45 = require('ode45-cash-karp')
 
 // The derivative function for a Van der Pol oscillator:
 var vanderpol = function(dydt, y, t) {
@@ -72,7 +72,7 @@ integrator.steps( Infinity, 1.5 )
 
 ## API
 
-#### `require('ode-rk45-cash-karp')( y0, deriv, t0, dt0 [, options] )`
+#### `require('ode45-cash-karp')( y0, deriv, t0, dt0 [, options] )`
 #### Arguments:
 - `y0`: an array or typed array containing initial conditions. This vector is updated in-place with each integrator step.
 - `deriv`: a function that calculates the derivative. Format is `function( dydt, y, t )`. Inputs are current state `y` and current time `t`, output is the calculated derivative `dydt`.
