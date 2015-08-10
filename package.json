@@ -1,7 +1,7 @@
 {
   "name": "ode-rk45-cash-karp",
   "version": "0.2.1",
-  "description": "Integrate a system of ODEs using the Fifth Order Adaptive Cash-Karp Runge-Kutta (RKCK) method",
+  "description": "Integrate a system of Ordinary Differential Equations using the Fifth Order Adaptive Cash-Karp method",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha"
