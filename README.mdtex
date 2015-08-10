@@ -64,7 +64,7 @@ integrator.steps( Infinity, tmax )
 #### Returns:
 Initialized integrator object.
 
-**Properties:**
+#### Properties:
 - `n`: dimension of `y0`.
 - `y`: current state. Initialized as a shallow copy of input `y0`.
 - `deriv`: function that calculates the derivative. Initialized from input. May be changed.

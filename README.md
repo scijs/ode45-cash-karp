@@ -20,33 +20,24 @@ $ npm install ode-rk45-cash-karp
 ## Example
 
 ```javascript
-var rk45 = require('ode-rk45-cash-karp')
+var ode45 = require('ode-rk45-cash-karp')
 
-var mu = 4.0
-
-var deriv = function(dydt, y, t) {
+// The derivative function for a Van der Pol oscillator:
+var vanderpol = function(dydt, y, t) {
   dydt[0] = y[1]
-  dydt[1] = mu * (1-y[0]*y[0])*y[1] - y[0]
+  dydt[1] = 4 * (1-y[0]*y[0])*y[1] - y[0]
 }
 
-var y0 = [2,0]
-var n = 1000
-var t0 = 0
-var dt = 1
+// Initialize:
+var integrator = ode45( [2,0], vanderpol, 0, 1e-3 )
 
-var integrator = rk45( y0, deriv, t0, dt )
-
-// Store the output in simple arrays:
-var t = []
-var x = []
-var y = []
-
+// Integrate up to tmax:
 while( integrator.step( tmax ) ) {
-  integrator.steps(n)
-  t.push( integrator.t )
-  x.push( integrator.y[0] )
-  y.push( integrator.y[1] )
+  // Store the solution
 }
+
+// Or simply integrate up to a fixed time:
+integrator.steps( Infinity, tmax )
 ```
 
 
@@ -73,7 +64,7 @@ while( integrator.step( tmax ) ) {
 #### Returns:
 Initialized integrator object.
 
-**Properties:**
+#### Properties:
 - `n`: dimension of `y0`.
 - `y`: current state. Initialized as a shallow copy of input `y0`.
 - `deriv`: function that calculates the derivative. Initialized from input. May be changed.
