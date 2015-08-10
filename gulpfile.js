@@ -20,7 +20,6 @@ gulp.task('mdtex',function() {
   return gulp.src('*.mdtex')
     .pipe(transform)
     .pipe(texFilter)
-    .pipe(tap(function(file) { console.log(file.contents.toString()) }))
     .pipe(latex())
     .pipe(pdftocairo({format: 'png'}))
     .pipe(gulp.dest('docs/images'))

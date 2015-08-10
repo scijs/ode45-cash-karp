@@ -5,7 +5,7 @@ var rk45 = require('../lib')
   , richardson = require('richardson-extrapolation')
 
 var ctors = {
-  //'float32': Float32Array,
+  'float32': Float32Array,
   'float64': Float64Array,
   'array': function(){ return arguments[0] }
 }
@@ -58,12 +58,14 @@ Object.keys(ctors).forEach(function(dtype) {
         }
         // Integrate around a circle and confirm that it doesn't matter
         // whether we integrate one way or the other:
-        var i1 = rk45( new ctor([1,0]), f, 0, 1e10).step()
-        var i2 = rk45( new ctor([1,0]), f, 0, -1e10).step()
+        var i1 = rk45( new ctor([1,0]), f, 0, 1e4)
+        i1.step()
+        var i2 = rk45( new ctor([1,0]), f, 0, -1e4)
+        i2.step()
 
-        assert.closeTo( i1.y[0], i2.y[0], 1e-8, 'x-coordinates are equal' )
-        assert.closeTo( i1.y[1], -i2.y[1], 1e-8, 'y-coordinates are opposite' )
-        assert.closeTo( i1.dt, -i2.dt, 1e-8, 'dt has been adapted identically' )
+        assert.closeTo( i1.y[0], i2.y[0], 1e-6, 'x-coordinates are equal' )
+        assert.closeTo( i1.y[1], -i2.y[1], 1e-6, 'y-coordinates are opposite' )
+        assert.closeTo( i1.dt, -i2.dt, 1e-6, 'dt has been adapted identically' )
       })
 
       it('is scale-independent in calculating the error', function() {
@@ -73,23 +75,66 @@ Object.keys(ctors).forEach(function(dtype) {
         }
         // Integration around a circle is scale-independent in dt, so
         // ensure that the adaptation is the same no matter the radius:
-        var i1 = rk45( new ctor([1e30,0]), f, 0, 1e10).step()
-        var i2 = rk45( new ctor([1e-30,0]), f, 0, 1e10).step()
-        assert.closeTo( i1.dt, i2.dt, 1e-3 )
+        var i1 = rk45( new ctor([1e5,0]), f, 0, 1e4)
+        i1.step()
+        var i2 = rk45( new ctor([1e-5,0]), f, 0, 1e4)
+        i2.step()
+        assert.closeTo( i1.dt, i2.dt, 1e-2 )
+      })
+
+      it('throws an error if NaN encountered', function() {
+        var f = function(dydt, y) { dydt[0] = Math.pow(y[0],4) }
+        assert.throws(function() {
+          var i = rk45( new ctor([100,0]), f, 0, 1)
+          i.steps(10)
+        },Error,/NaN encountered/)
       })
 
       it('updates dt according to the timestep taken', function() {
         // Integrate dy/dt = constant
         var c = 5.2
         var f = function(dydt, y) { dydt[0] = c }
-        var i = rk45( new ctor([0]), f, 0, 1).step()
+        var i = rk45( new ctor([0]), f, 0, 1)
+        i.step()
         assert.closeTo( i.y[0], i.t * c, 1e-3, 'answer is correct' )
+      })
+
+      it('integrates with dt>0 and a limit', function() {
+        var c = 5.2
+        var t0 = 1
+        var t1 = 3
+        var dt = 1
+        var f = function(dydt, y) { dydt[0] = c }
+        var i = rk45( new ctor([0]), f, t0, dt)
+        i.step( t1 )
+        assert.closeTo( i.y[0], (2-t0) * c, 1e-3, 'answer is correct' )
+        assert.closeTo( i.t, 2, 1e-3, 'dt has been clipped')
+        i.step( t1 )
+        assert.closeTo( i.y[0], (t1-t0) * c, 1e-3, 'answer is correct' )
+        assert.closeTo( i.t, t1, 1e-3, 'dt has been clipped')
+      })
+
+      it('integrates with dt<0 and a limit', function() {
+        var c = 5.2
+        var t0 = 3
+        var t1 = 1
+        var dt = -1
+        var f = function(dydt, y) { dydt[0] = c }
+        var i = rk45( new ctor([0]), f, t0, dt)
+
+        assert.isTrue( i.step( t1 ) )
+        assert.closeTo( i.y[0], (2-t0) * c, 1e-3, 'answer is correct' )
+        assert.closeTo( i.t, t0+dt, 1e-3, 'dt is updated')
+        assert.isTrue( i.step( t1 ) )
+        assert.closeTo( i.y[0], (t1-t0) * c, 1e-3, 'answer is correct' )
+        assert.closeTo( i.t, t1, 1e-3, 'dt has been clipped')
       })
 
       it('integrates the 0 without incident', function() {
         // Just to make sure there aren't any divide-by-zero issues
         var f = function(dydt, y) { dydt[0] = 0 }
-        var i = rk45( new ctor([0]), f, 0, 1).step()
+        var i = rk45( new ctor([0]), f, 0, 1)
+        i.step()
         assert.closeTo( i.y[0], 0, 1e-3, 'answer is correct' )
         assert.closeTo( i.dt, 10, 1e-3, 'dt has been increased for the next step' )
       })
@@ -99,20 +144,63 @@ Object.keys(ctors).forEach(function(dtype) {
         var dt0 = 15
         var factor = 11
         var f = function(dydt, y) { dydt[0] = 1 }
-        var i = rk45( new ctor([0]), f, 0, dt0, {maxIncreaseFactor: factor}).step()
+        var i = rk45( new ctor([0]), f, 0, dt0, {maxIncreaseFactor: factor})
+        i.step()
         assert.closeTo( i.dt, dt0 * factor, 1e-3, 'increased dt by maxIncreaseFactor' )
       })
+    })
 
-      it('throws an error on step size hitting dtMin', function() {
+    describe('stepsize limiting', function() {
+      it('doesn\'t decrease the step size past dtMinMag (dt > 0)', function() {
+        var dtMinMag = 1e-4
         var i
-        var f = function(dydt, y) { dydt[0] = Math.cos(1e10*y[0]) }
-        assert.throws(function() {
-          i = rk45( new ctor([200]), f, 0, 1, {dtMin: 1e-4})
-          i.step()
-        },Error,/minimum stepsize exceeded/)
-
+        var f = function(dydt, y) { dydt[0] = Math.cos(1e5*y[0]) }
+        i = rk45( new ctor([0]), f, 0, 1, {dtMinMag: dtMinMag})
+        i.step()
         assert( Number.isFinite(i.y[0]), 'y is finite' )
-        assert( i.y[0] !== 200, 'y has been timestepped' )
+        assert( i.y[0] !== 0, 'y has been timestepped' )
+        assert.closeTo( i.t, dtMinMag, 1e-8, 'dt is at the lower limit' )
+        i.step()
+        assert.closeTo( i.t, 2 * dtMinMag, 1e-8, 'dt is at the lower limit' )
+      })
+
+      it('doesn\'t decrease the step size past dtMinMag (dt < 0)', function() {
+        var dtMinMag = 1e-4
+        var i
+        var f = function(dydt, y) { dydt[0] = Math.cos(1e5*y[0]) }
+        i = rk45( new ctor([0]), f, 0, -1, {dtMinMag: dtMinMag})
+        i.step()
+        assert( Number.isFinite(i.y[0]), 'y is finite' )
+        assert( i.y[0] !== 0, 'y has been timestepped' )
+        assert.closeTo( i.t, -dtMinMag, 1e-8, 'dt is at the lower limit' )
+        i.step()
+        assert.closeTo( i.t, -2 * dtMinMag, 1e-8, 'dt is at the lower limit' )
+      })
+
+      it('doesn\'t increase the step size past dtMax (dt > 0)', function() {
+        var dtMaxMag = 2
+        var i, dt0 = 1e4
+        var f = function(dydt, y) { dydt[0] = 1 }
+        i = rk45( new ctor([0]), f, 0, dt0, {dtMaxMag: dtMaxMag})
+        i.step()
+        assert( Number.isFinite(i.y[0]), 'y is finite' )
+        assert( i.y[0] !== 0, 'y has been timestepped' )
+        assert.closeTo( i.t, dtMaxMag, 1e-8, 'dt is at the upper limit' )
+        i.step()
+        assert.closeTo( i.t, dtMaxMag * 2, 1e-8, 'dt is at the upper limit' )
+      })
+
+      it('doesn\'t increase the step size past dtMax (dt < 0)', function() {
+        var dtMaxMag = 2
+        var i, dt0 = -1e4
+        var f = function(dydt, y) { dydt[0] = 1 }
+        i = rk45( new ctor([0]), f, 0, dt0, {dtMaxMag: dtMaxMag})
+        i.step()
+        assert( Number.isFinite(i.y[0]), 'y is finite' )
+        assert( i.y[0] !== 0, 'y has been timestepped' )
+        assert.closeTo( i.t, -dtMaxMag, 1e-8, 'dt is at the upper limit' )
+        i.step()
+        assert.closeTo( i.t, -dtMaxMag * 2, 1e-8, 'dt is at the upper limit' )
       })
 
     })
@@ -132,14 +220,18 @@ Object.keys(ctors).forEach(function(dtype) {
 
           var n = Math.floor(1/h+0.5)
           for(var j=0; j<n; j++) {
-            i._calculateK1()._step()._update()
+            i._calculateK1()
+            i._step()
+            i._update()
           }
 
           // Return the distance from the expected endpoint:
           return Math.sqrt( Math.pow(i.y[0]-1,2) + Math.pow(i.y[1],2) )
 
           // Step size chosen to be the minimum before we lose too much precision in the
-          // float32 scheme to calculate anything meaningful:
+          // float32 scheme to calculate anything meaningful. There's probably a better
+          // equation for this, but long story short, fifth order convergence is difficult
+          // to test in 32 bit floating point.
         }, 1/18, { f: 0 } )
 
         assert.closeTo( result.n, 5, 0.15, 'n ~ 5' )
