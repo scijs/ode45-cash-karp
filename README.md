@@ -31,11 +31,17 @@ var vanderpol = function(dydt, y, t) {
 }
 
 // Initialize:
-var integrator = ode45( [2,0], vanderpol, 0, 1e-3 )
+var y0 = [2,0],
+    t0 = 0,
+    dt0 = 1e-3,
+    integrator = ode45( y0, vanderpol, t0, dt0 )
 
 // Integrate up to tmax:
+var tmax = 10, t = [], y = []
 while( integrator.step( tmax ) ) {
-  // Store the solution integrator.y at time integrator.t
+  // Store the solution at this timestep:
+  t.push( integrator.t )
+  y.push( integrator.y )
 }
 ```
 
@@ -97,10 +103,7 @@ Initialized integrator object.
 - `deriv`: function that calculates the derivative.
 - `t`: current time, incremented by `dt` on each time step.
 - `dt`: current time step <img alt="&bsol;Delta t" valign="middle" src="docs/images/delta-t-a20a5fe4f2.png" width="28" height="16">. Initialized from input `dt0`. May be changed, but will be overwritten with each adaptive step in order to acheive the prescribed error bound.
-- `maxDecreaseFactor`: set from options or defaults. May be changed.
-- `maxIncreaseFactor`: set from options or defaults. May be changed.
-- `dtMinMag`: set from options or defaults. May be changed.
-- `dtMaxMag`: set from options or defaults. May be changed.
+- all options are copied to properties on the integrator object and may be changed at any time.
 
 #### Methods:
 - `.step( [tLimit] )`: takes a single step of the integrator and stores the result in-place in the `y` property. Returns true if `tLimit` was not provided or if `t` has not reached the limit, otherwise returns false, meaning `t` has reached `tLimit`.
@@ -109,7 +112,7 @@ Initialized integrator object.
 ### Error Estimation
 Ideally, there would be no choices in error computation since this library would implement the best possible choices, but I've left this configurable.
 
-#### `errorScaleFunction: function( i, dt, y, dydt )`
+##### `errorScaleFunction: function( i, dt, y, dydt )`
 This function receives the dimension number `i`, the current timestep `dt`, the current state `y`, and the derivative calculated at the beginning of the step, `dydt`. It must return a normalization factor by which the error in the given dimension is normalized. It is executed once at the beginning of each timestep and not for subsequent trial steps. By default, it is:
 
 ```
@@ -118,7 +121,7 @@ function errorScaleFunction( i, dt, y, dydt ) {
 }
 ```
 
-#### `errorReduceFunction: function( i, accumulatedError, errorEstimate )`
+##### `errorReduceFunction: function( i, accumulatedError, errorEstimate )`
 This function performs a reduce operation on the per-dimension error. `accumulatedError` is initially zero. The function must add the error estimate in dimension `i` and return a new error estimate. By default, the error reduce function simply returns the maximum error:
 
 ```
@@ -127,7 +130,7 @@ function errorReduceFunction( i, accumulatedError, errorEstimate ) {
 }
 ```
 
-#### `errorPostFunction: function( accumulatedError, errorEstimate )`
+##### `errorPostFunction: function( accumulatedError, errorEstimate )`
 This function applies a mapping to the total reduced error resulting from `errorReduceFunction`. For the <img alt="L&lowbar;2" valign="middle" src="docs/images/l_2-23fd536b11.png" width="26.5" height="19"> norm, this would just be `Math.sqrt`; for the <img alt="L&lowbar;&bsol;infty" valign="middle" src="docs/images/l_infty-c904452e37.png" width="34.5" height="19"> norm, this is simply a no-op:
 
 ```
