@@ -221,7 +221,7 @@ Object.keys(ctors).forEach(function(dtype) {
           var n = Math.floor(1/h+0.5)
           for(var j=0; j<n; j++) {
             i._calculateK1()
-            i._step()
+            i._calculateKs()
             i._update()
           }
 
