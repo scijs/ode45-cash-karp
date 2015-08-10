@@ -10,10 +10,14 @@ var deriv = function(dydt, y, t) {
   dydt[0] = Math.exp(-t*t * 100) * 2/Math.sqrt(Math.PI/100)
 }
 
-var t0 = -2
-var tmax = 2
+var t0 = -10
+var tmax = 10
 
-var i1 = rkck( [-1], deriv, t0, 1e-4, {tol: 1e-8} )
+var i1 = rkck( [-1], deriv, t0, 1e-4, {
+  tol: 1e-8,
+  dtMaxMag: 0.5,
+  maxIncreaseFactor: 2
+})
 var i2 = rk4( [-1], deriv, t0, 1e-2 )
 
 fs.writeSync( rkckOut, i1.t + '\t' + i1.y[0] + '\t' + i1.dt + '\n' )
