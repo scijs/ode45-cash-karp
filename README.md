@@ -93,6 +93,7 @@ integrator.steps( Infinity, 1.5 )
   - `errorScaleFunction`: The function used to compute a normalizing factor for the error in a given dimension. See below for details.
   - `errorReduceFunction`: The reduce operation by which errors in each dimension are combined into a single error metric. See below for details.
   - `errorPostFunction`: An operation applied to the total error. For example, if using the <img alt="L&lowbar;2" valign="middle" src="docs/images/l_2-23fd536b11.png" width="26.5" height="19"> norm this would be a square root. See below for details.
+  - `verbose`: Log covergence warnings. Default is `true`.
 
 #### Returns:
 Initialized integrator object.
