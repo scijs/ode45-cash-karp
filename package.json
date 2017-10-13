@@ -1,6 +1,6 @@
 {
   "name": "ode45-cash-karp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Integrate a system of Ordinary Differential Equations using the Fifth Order Adaptive Cash-Karp method",
   "main": "lib/index.js",
   "scripts": {
