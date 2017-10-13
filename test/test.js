@@ -206,7 +206,6 @@ Object.keys(ctors).forEach(function(dtype) {
     })
 
     describe('convergence', function() {
-
       it('total accumulated error of high order scheme is order O(h^5)', function() {
 
         var result = richardson(function(h) {
@@ -238,6 +237,8 @@ Object.keys(ctors).forEach(function(dtype) {
       })
 
     })
+
+    describe
 
   })
 
