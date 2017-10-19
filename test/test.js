@@ -219,9 +219,9 @@ Object.keys(ctors).forEach(function(dtype) {
 
           var n = Math.floor(1/h+0.5)
           for(var j=0; j<n; j++) {
-            i._calculateK1()
-            i._calculateKs()
-            i._update()
+            i._calculateK1(i.dt)
+            i._calculateKs(i.dt)
+            i._update(i.dt)
           }
 
           // Return the distance from the expected endpoint:
